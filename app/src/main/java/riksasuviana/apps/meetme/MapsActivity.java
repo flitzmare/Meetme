@@ -1,8 +1,6 @@
 package riksasuviana.apps.meetme;
 
-import android.location.Address;
 import android.location.Criteria;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
@@ -13,22 +11,31 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    private GoogleMap mMap;
+
     double longitude, latitude;
 
-    private GoogleMap mMap;
+    @OnClick(R.id.movebtn) void move(){
+        latitude = -34;
+        longitude = 151;
+
+        mMap.clear();
+        mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Kamu disini !"));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+        ButterKnife.bind(this);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -48,19 +55,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-//        Geocoder g = new Geocoder(getBaseContext(), Locale.getDefault());
-//
-//        try {
-//            List<Address> ad = g.getFromLocation(longitude, longitude, 1);
-//        }
-//        catch (IOException e){
-//            e.printStackTrace();
-//        }
-
-//        setUpMap();
-
-//        mMap.setMyLocationEnabled(true);
 
         LocationManager lm =(LocationManager)getSystemService(LOCATION_SERVICE);
 
@@ -82,9 +76,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.animateCamera(CameraUpdateFactory.zoomTo(10));
 
+        mMap.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener() {
+            @Override
+            public void onMyLocationChange(Location location) {
+                mMap.clear();
+                latitude = location.getLatitude();
+                longitude = location.getLongitude();
+
+                mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Kamu disini !"));
+            }
+        });
+
         // Add a marker in Sydney and move the camera
 //        LatLng sydney = new LatLng(-34, 151);
 //        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
 //        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    }
+
+    Marker m;
+    public void onLocationChanged(Location location){
+        if(m != null){
+            m.remove();
+        }
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
+
+        LatLng lat = new LatLng(latitude, longitude);
+
+        m = mMap.addMarker(new MarkerOptions().position(lat));
     }
 }
