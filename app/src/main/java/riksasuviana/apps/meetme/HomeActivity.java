@@ -32,8 +32,7 @@ public class HomeActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener mAuthListener;
 
-    DatabaseReference db;
-    DatabaseReference ncheck;
+    DatabaseReference db, ncheck, intentcheck;
 
     String name, email, key, uid;
 
@@ -52,14 +51,6 @@ public class HomeActivity extends AppCompatActivity {
 //        startActivity(new Intent(HomeActivity.this, AddfriendActivity.class));
         CustomDialogClass cdc = new CustomDialogClass(HomeActivity.this);
         cdc.show();
-    }
-
-    @OnClick(R.id.btnfriendlist) void friends(){
-        startActivity(new Intent(HomeActivity.this, Friendlist.class));
-    }
-
-    @OnClick(R.id.friendrq) void friendeq(){
-        startActivity(new Intent(HomeActivity.this, FriendRequest.class));
     }
 
     @OnClick(R.id.chatlistbtn) void chat(){
@@ -132,6 +123,21 @@ public class HomeActivity extends AppCompatActivity {
                     sp.setText(dataSnapshot.child("meetrequest").getValue(String.class));
                     MeetRequestDialog d = new MeetRequestDialog(HomeActivity.this, dataSnapshot.child("meetrequest").getValue(String.class));
                     d.show();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        intentcheck = db.child(key);
+        intentcheck.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.hasChild("pos")){
+                    startActivity(new Intent(HomeActivity.this, MapsActivity.class));
                 }
             }
 

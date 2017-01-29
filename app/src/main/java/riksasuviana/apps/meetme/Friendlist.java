@@ -42,9 +42,7 @@ public class Friendlist extends Fragment {
 
     int i;
 
-//    @BindView(R.id.t) TextView t;
-
-//    @BindView(R.id.rv) RecyclerView rv;
+    @BindView(R.id.rv) RecyclerView rv;
 
     MyAdapter adp;
 

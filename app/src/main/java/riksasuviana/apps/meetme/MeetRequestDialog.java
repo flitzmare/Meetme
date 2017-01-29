@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -29,11 +30,11 @@ public class MeetRequestDialog extends Dialog implements View.OnClickListener {
 
     TextView namedialog, photodialog;
 
-    String name, photo, key;
+    String name, photo, key, mykey;
 
     Activity a;
 
-    DatabaseReference ref;
+    DatabaseReference ref, myref;
 
     double longitude, latitude;
 
@@ -54,6 +55,9 @@ public class MeetRequestDialog extends Dialog implements View.OnClickListener {
         rej = (Button)findViewById(R.id.mrej);
         rej.setOnClickListener(this);
 
+        SharedPreferences pref = getContext().getSharedPreferences("pref", Context.MODE_PRIVATE);
+        mykey = pref.getString("key", "");
+
         ref = FirebaseDatabase.getInstance().getReference().child("profiles").child(key);
         ref.addValueEventListener(new ValueEventListener() {
             @Override
@@ -68,6 +72,8 @@ public class MeetRequestDialog extends Dialog implements View.OnClickListener {
             }
         });
 
+        myref = FirebaseDatabase.getInstance().getReference().child("profiles").child(mykey);
+
         namedialog = (TextView)findViewById(R.id.mname);
         namedialog.setText(name);
         photodialog = (TextView)findViewById(R.id.mphoto);
@@ -80,24 +86,15 @@ public class MeetRequestDialog extends Dialog implements View.OnClickListener {
             case R.id.macc:
                 //go to map activity
 
-                LocationManager lm =(LocationManager)getContext().getSystemService(Context.LOCATION_SERVICE);
-
-                Criteria c = new Criteria();
-
-                String provider = lm.getBestProvider(c, true);
-
-                Location myLocation = lm.getLastKnownLocation(provider);
-
-                latitude = myLocation.getLatitude();
-
-                longitude = myLocation.getLongitude();
-
-//                LatLng latLng = new LatLng(latitude, longitude);
-
+                latitude = 0;
+                longitude = 0;
                 PositionInput p = new PositionInput(latitude, longitude);
+                myref.child("pos").setValue(p);
                 ref.child("pos").setValue(p);
                 ref.child("meetrequest").removeValue();
-                getContext().startActivity(new Intent(getContext(), MapsActivity.class));
+                Intent i = new Intent(getContext(), MapsActivity.class);
+                i.putExtra("key", key);
+                getContext().startActivity(i);
                 break;
             case R.id.mrej:
 
