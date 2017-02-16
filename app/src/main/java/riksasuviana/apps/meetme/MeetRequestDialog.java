@@ -89,15 +89,18 @@ public class MeetRequestDialog extends Dialog implements View.OnClickListener {
                 latitude = 0;
                 longitude = 0;
                 PositionInput p = new PositionInput(latitude, longitude);
+                myref.child("meetrequest").removeValue();
                 myref.child("pos").setValue(p);
                 ref.child("pos").setValue(p);
-                ref.child("meetrequest").removeValue();
+                ref.child("meet").setValue(mykey);
                 Intent i = new Intent(getContext(), MapsActivity.class);
                 i.putExtra("key", key);
                 getContext().startActivity(i);
+                dismiss();
                 break;
             case R.id.mrej:
-
+                myref.child("meetrequest").removeValue();
+                dismiss();
                 break;
             default:
                 break;

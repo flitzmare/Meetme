@@ -41,7 +41,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         final FriendProfile p = list.get(position);
         holder.name.setText(p.getName());
         holder.myphoto.setText(p.getPhoto());
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+        holder.itemView.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ProfileDialog d = new ProfileDialog((Activity) v.getContext(), p.getName(), p.getPhoto(), p.getKey());

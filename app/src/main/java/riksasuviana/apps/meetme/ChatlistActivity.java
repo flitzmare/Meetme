@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,67 +28,64 @@ import butterknife.ButterKnife;
 
 public class ChatlistActivity extends Fragment {
 
-    List<FriendProfile> prof = new ArrayList<>();
+    List<ChatList> prof = new ArrayList<>();
 
     ArrayList<String> list = new ArrayList<>();
 
-    DatabaseReference ref, fl;
+    ArrayList<String> friendkey = new ArrayList<>();
+
+    DatabaseReference myref, fl, profileref;
 
     String key;
 
     int i;
 
-    @BindView(R.id.tvchatlist) TextView tv;
+//    @BindView(R.id.tvchatlist) TextView tv;
 
-//    @BindView(R.id.rvchatlist) RecyclerView rvchatlist;
+//    @BindView(R.id.rvc) RecyclerView rvchatlist;
+
+    String nantihapus;
+
+    ChatlistAdapter adp;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ButterKnife.bind(getActivity());
 
-        ChatlistAdapter adp = new ChatlistAdapter(prof);
-
         View rootView = inflater.inflate(R.layout.activity_chatlist, container, false);
 
-        RecyclerView rvchatlist = (RecyclerView)rootView.findViewById(R.id.rvchatlist);
+        RecyclerView rvchatlist = (RecyclerView)rootView.findViewById(R.id.rvc);
+
+        LinearLayoutManager lm = new LinearLayoutManager(getActivity());
+
+        rvchatlist.setLayoutManager(lm);
+
+        adp = new ChatlistAdapter(prof);
+
+//        ChatList c = new ChatList("asd", "qwe");
+//        prof.add(c);
+
+        rvchatlist.setAdapter(adp);
+
 
         SharedPreferences pref = getContext().getSharedPreferences("pref", Context.MODE_PRIVATE);
         key = pref.getString("key", "");
 
-        fl = FirebaseDatabase.getInstance().getReference().child("profiles");
+        myref = FirebaseDatabase.getInstance().getReference().child("profiles").child(key).child("friends");
 
-        ref = FirebaseDatabase.getInstance().getReference().child("profiles").child(key).child("friends");
-
-        LinearLayoutManager lm = new LinearLayoutManager(getContext());
-        rvchatlist.setLayoutManager(lm);
-
-        ref.addValueEventListener(new ValueEventListener() {
+        myref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot ds : dataSnapshot.getChildren()){
-
-//                    if(!ds.getValue(String.class).equals("0")){
-//                        list.add(ds.getKey());
-//                    }
-
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-        fl.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot dsp : dataSnapshot.getChildren()) {
-                    for (i = 0; i < list.size(); i++) {
-                        if(dsp.getKey().equals(list.get(i))){
-                            FriendProfile p = new FriendProfile(dsp.child("name").getValue(String.class), dsp.child("photo").getValue(String.class), dsp.getKey());
-                            prof.add(p);
+                friendkey.clear();
+                list.clear();
+                for (DataSnapshot dsp : dataSnapshot.getChildren()) {
+                    if(dsp.hasChildren()) {
+                        for (DataSnapshot ds : dsp.getChildren()) {
+                            friendkey.add(dsp.getKey());
+                            list.add(ds.getKey());
+                            Log.wtf("FRIENDKEY ADDED : ",dsp.getKey());
+                            Log.wtf("DSGETKEY ADDED : ", ds.getKey());
                         }
                     }
                 }
@@ -99,7 +97,27 @@ public class ChatlistActivity extends Fragment {
             }
         });
 
-        rvchatlist.setAdapter(adp);
+        profileref = FirebaseDatabase.getInstance().getReference().child("profiles");
+        profileref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    for (int j = 0; j < friendkey.size(); j++) {
+                        if(ds.getKey().equals(friendkey.get(j))){
+                            ChatList c = new ChatList(ds.child("photo").getValue(String.class), ds.child("name").getValue(String.class), list.get(j));
+                            prof.add(c);
+                            adp.notifyDataSetChanged();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
 
         return rootView;
     }

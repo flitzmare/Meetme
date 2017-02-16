@@ -58,6 +58,8 @@ public class Friendlist extends Fragment {
 
 //    @BindView(R.id.refresh) SwipeRefreshLayout refresh;
 
+    @BindView(R.id.tvt) TextView tvt;
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ButterKnife.bind(getActivity());
 
@@ -65,8 +67,8 @@ public class Friendlist extends Fragment {
 
         final SwipeRefreshLayout refresh = (SwipeRefreshLayout)rootView.findViewById(R.id.refresh);
 
-        FriendProfile p = new FriendProfile("namanya", "yrdy", "123");
-        profileList.add(p);
+//        FriendProfile p = new FriendProfile("namanya", "yrdy", "123");
+//        profileList.add(p);
 
         RecyclerView rv = (RecyclerView)rootView.findViewById(R.id.rv);
 
@@ -83,9 +85,11 @@ public class Friendlist extends Fragment {
         ref = FirebaseDatabase.getInstance().getReference().child("profiles").child(key).child("friends");
 
 //        if(list.isEmpty()) {
-            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            ref.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
+                    list.clear();
+//                    profileList.clear();
                     for (DataSnapshot dsp : dataSnapshot.getChildren()) {
                         list.add(String.valueOf(dsp.getKey()));
                     }
@@ -99,9 +103,10 @@ public class Friendlist extends Fragment {
             });
 //        }
 
-            fl.addListenerForSingleValueEvent(new ValueEventListener() { //ini masalah add auto
+            fl.addValueEventListener(new ValueEventListener() { //ini masalah add auto
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
+                    profileList.clear();
                     adp.notifyDataSetChanged();
                         for (DataSnapshot dsp : dataSnapshot.getChildren()) {
                             for (i = 0; i < list.size(); i++) {
@@ -132,10 +137,10 @@ public class Friendlist extends Fragment {
         refRq = FirebaseDatabase.getInstance().getReference().child("profiles").child(key).child("friendrequest");
 
 
-            refRq.addListenerForSingleValueEvent(new ValueEventListener() {
+            refRq.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    ad.notifyDataSetChanged();
+                    s.clear();
 
                     for (DataSnapshot ds : dataSnapshot.getChildren()) {
                         s.add(String.valueOf(ds.getKey()));
@@ -148,9 +153,10 @@ public class Friendlist extends Fragment {
                 }
             });
 
-            fl.addListenerForSingleValueEvent(new ValueEventListener() {
+            fl.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
+                    li.clear();
                     ad.notifyDataSetChanged();
 
                     for (DataSnapshot dsp : dataSnapshot.getChildren()) {
@@ -254,6 +260,8 @@ public class Friendlist extends Fragment {
         });
 
         rvrequest.setAdapter(ad);
+
+//        tvt.setText(list.get(0));
 
         return rootView;
     }

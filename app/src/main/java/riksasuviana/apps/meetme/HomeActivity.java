@@ -38,25 +38,13 @@ public class HomeActivity extends AppCompatActivity {
 
     @BindView(R.id.vp) ViewPager vp;
 
-    @BindView(R.id.sp) TextView sp;
-
     @BindView(R.id.tl) TabLayout tl;
-
-    @OnClick(R.id.pushbtn) void push(){
-        startActivity(new Intent(HomeActivity.this, MapsActivity.class));
-        Toast.makeText(HomeActivity.this, "Clicked", Toast.LENGTH_LONG).show();
-    }
 
     @OnClick(R.id.fab) void fab(){
 //        startActivity(new Intent(HomeActivity.this, AddfriendActivity.class));
         CustomDialogClass cdc = new CustomDialogClass(HomeActivity.this);
         cdc.show();
     }
-
-    @OnClick(R.id.chatlistbtn) void chat(){
-        startActivity(new Intent(HomeActivity.this, ChatlistActivity.class));
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,9 +108,11 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.hasChild("meetrequest")){
-                    sp.setText(dataSnapshot.child("meetrequest").getValue(String.class));
                     MeetRequestDialog d = new MeetRequestDialog(HomeActivity.this, dataSnapshot.child("meetrequest").getValue(String.class));
-                    d.show();
+                    if(!d.isShowing()) {
+                        d.show();
+                    }
+//                    sp.setText(dcount+"");
                 }
             }
 
@@ -136,8 +126,12 @@ public class HomeActivity extends AppCompatActivity {
         intentcheck.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.hasChild("pos")){
-                    startActivity(new Intent(HomeActivity.this, MapsActivity.class));
+                if(dataSnapshot.hasChild("meet")){
+                    String k = dataSnapshot.child("meet").getValue(String.class);
+                    Intent i = new Intent(HomeActivity.this, MapsActivity.class);
+                    i.putExtra("key", k);
+                    startActivity(i);
+                    intentcheck.child("meet").removeValue();
                 }
             }
 

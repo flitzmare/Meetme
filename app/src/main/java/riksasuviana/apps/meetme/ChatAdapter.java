@@ -14,44 +14,81 @@ import java.util.List;
  */
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
-    private List<FriendProfile> list;
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView name, myphoto;
+    public static final int VIEW_TYPE_NUURANG = 1;
+    public static final int VIEW_TYPE_NUBATUR = 2;
 
-        public ViewHolder(View view) {
-            super(view);
-            name = (TextView) view.findViewById(R.id.name);
-            myphoto = (TextView) view.findViewById(R.id.photo);
-        }
-    }
+    private List<Integer> listviewType;
+    private List<InputChat> list;
 
-    public ChatAdapter(List<FriendProfile> list) {
+    public ChatAdapter(List<Integer> listviewType, List<InputChat> list) {
+        this.listviewType = listviewType;
         this.list = list;
     }
 
     @Override
-    public ChatAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.forfriendlist, parent, false);
-        return new ChatAdapter.ViewHolder(itemView);
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+//        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.forfriendlist, parent, false);
+//        return new ChatAdapter.ViewHolder(itemView);
+
+        View view;
+        if(viewType == VIEW_TYPE_NUURANG){
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.msgme, null);
+            return new SisiUrang(view);
+        }else {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.msgyou, null);
+            return new SisiManeh(view);
+        }
     }
 
     @Override
-    public void onBindViewHolder(final ChatAdapter.ViewHolder holder, int position) {
-        final FriendProfile p = list.get(position);
-        holder.name.setText(p.getName());
-        holder.myphoto.setText(p.getPhoto());
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FriendRequestDialog d = new FriendRequestDialog((Activity) v.getContext(), p.getName(), p.getPhoto(), p.getKey());
-                d.show();
-            }
-        });
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        int viewType = listviewType.get(position);
+
+        InputChat p = list.get(position);
+
+        if(viewType == VIEW_TYPE_NUURANG){
+            SisiUrang urang = (SisiUrang)holder;
+            urang.msg.setText(p.getMsg());
+        }else{
+            SisiManeh maneh = (SisiManeh)holder;
+            maneh.yourmsg.setText(p.getMsg());
+        }
+
     }
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return listviewType.size();
+//        return 0;
+    }
+
+    public int getItemViewType(int position){
+        return listviewType.get(position);
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+
+        public ViewHolder(View view) {
+            super(view);
+        }
+    }
+
+    public class SisiUrang extends ViewHolder {
+        public TextView msg;
+
+        public SisiUrang(View itemView) {
+            super(itemView);
+            msg = (TextView)itemView.findViewById(R.id.mychattv);
+        }
+    }
+
+    public class SisiManeh extends ViewHolder{
+        public TextView yourmsg;
+
+        public SisiManeh(View view) {
+            super(view);
+            yourmsg = (TextView)view.findViewById(R.id.yourchattv);
+        }
     }
 }

@@ -15,10 +15,11 @@ import java.util.List;
  */
 
 public class ChatlistAdapter extends RecyclerView.Adapter<ChatlistAdapter.ViewHolder> {
-    private List<FriendProfile> list;
+    private List<ChatList> list;
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView name, myphoto;
+        public String chatkey;
 
         public ViewHolder(View view) {
             super(view);
@@ -27,7 +28,7 @@ public class ChatlistAdapter extends RecyclerView.Adapter<ChatlistAdapter.ViewHo
         }
     }
 
-    public ChatlistAdapter(List<FriendProfile> list) {
+    public ChatlistAdapter(List<ChatList> list) {
         this.list = list;
     }
 
@@ -39,13 +40,16 @@ public class ChatlistAdapter extends RecyclerView.Adapter<ChatlistAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(final ChatlistAdapter.ViewHolder holder, int position) {
-        final FriendProfile p = list.get(position);
+        final ChatList p = list.get(position);
+        holder.chatkey = p.getChatkey();
         holder.name.setText(p.getName());
         holder.myphoto.setText(p.getPhoto());
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                v.getContext().startActivity(new Intent(v.getContext(), ChatActivity.class));
+                Intent i = new Intent(v.getContext(), ChatActivity.class);
+                i.putExtra("chatkey", p.getChatkey());
+                v.getContext().startActivity(i);
             }
         });
     }

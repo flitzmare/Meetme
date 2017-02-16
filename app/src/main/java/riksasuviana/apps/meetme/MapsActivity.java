@@ -16,6 +16,7 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -39,6 +40,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -67,6 +69,9 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
 //        mMap.addMarker(new MarkerOptions().position(new LatLng(latitude, longitude)).title("Kamu disini !"));
 //    }
 
+    @BindView(R.id.tv3)
+    TextView tv3;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,13 +87,15 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         Intent i = getIntent();
         Bundle b = i.getExtras();
         if(b != null) {
-            key = b.getString("key");
-            ref = FirebaseDatabase.getInstance().getReference().child("profiles").child(key).child("pos");
-            dbcheck = FirebaseDatabase.getInstance().getReference().child("profiles").child(key);
 
+            key = b.getString("key");
+            ref = FirebaseDatabase.getInstance().getReference().child("profiles").child(key);
+//            dbcheck = FirebaseDatabase.getInstance().getReference().child("profiles").child(key);
+            tv3.setText(key+"");
             ref.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
+//                    tv3.setText(dataSnapshot.child("pos").child("lng").getValue(Double.class)+"");
                     if(dataSnapshot.hasChild("pos")){
                         ref.addValueEventListener(new ValueEventListener() {
                             @Override
@@ -97,7 +104,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
                                 if(m != null) {
                                     m.remove();
                                 }
-                                yourlatlng = new LatLng(dataSnapshot.child("lat").getValue(Double.class), dataSnapshot.child("lng").getValue(Double.class));
+                                latLng = new LatLng(dataSnapshot.child("pos").child("lat").getValue(Double.class), dataSnapshot.child("pos").child("lng").getValue(Double.class));
+//                                latLng = new LatLng(-2.28455, 101.90918);
                                 MarkerOptions markerOptions = new MarkerOptions();
                                 markerOptions.position(latLng);
                                 markerOptions.title("Your Target Position");
@@ -110,8 +118,9 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
 
                             }
                         });
-                    }else{
-                        pd.setTitle("Initializing...");
+                    }
+                    else{
+                        pd.setTitle("Waiting for your friend...");
                         pd.show();
                         if(dataSnapshot.hasChild("pos")){
                             pd.dismiss();
@@ -124,6 +133,8 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
 
                 }
             });
+        }else{
+            tv3.setText("B EMPTY");
         }
 
         SharedPreferences pref = getSharedPreferences("pref", Context.MODE_PRIVATE);
@@ -181,12 +192,12 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
             mMap.clear();
             mylat.setValue(mLastLocation.getLatitude());
             mylng.setValue(mLastLocation.getLongitude());
-//            latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-//            MarkerOptions markerOptions = new MarkerOptions();
-//            markerOptions.position(latLng);
-//            markerOptions.title("Current Position");
-//            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-//            mark = mMap.addMarker(markerOptions);
+////            latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+////            MarkerOptions markerOptions = new MarkerOptions();
+////            markerOptions.position(latLng);
+////            markerOptions.title("Current Position");
+////            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+////            mark = mMap.addMarker(markerOptions);
         }
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(5000);
@@ -213,12 +224,12 @@ public class MapsActivity extends FragmentActivity implements GoogleApiClient.Co
         }
         mylat.setValue(location.getLatitude());
         mylng.setValue(location.getLongitude());
-//        latLng = new LatLng(location.getLatitude(), location.getLongitude());
-//        MarkerOptions markerOptions = new MarkerOptions();
-//        markerOptions.position(latLng);
-//        markerOptions.title("Current Position");
-//        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-//        mark = mMap.addMarker(markerOptions);
+////        latLng = new LatLng(location.getLatitude(), location.getLongitude());
+////        MarkerOptions markerOptions = new MarkerOptions();
+////        markerOptions.position(latLng);
+////        markerOptions.title("Current Position");
+////        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+////        mark = mMap.addMarker(markerOptions);
 
         Toast.makeText(this, "Location Changed", Toast.LENGTH_SHORT).show();
     }
